@@ -214,10 +214,18 @@
 .hud-clock:not(.live) .ck-part, .hud-clock.live .ck-still{ visibility:hidden; }
 .hud-clock.ring{ animation: ck-ring .55s ease-in-out; transform-origin: 50% 58%; }   /* 자명종처럼 부르르 */
 @keyframes ck-ring{ 12%{ rotate:-8deg; } 30%{ rotate:7deg; } 48%{ rotate:-5deg; } 66%{ rotate:3deg; } 84%{ rotate:-1deg; } 100%{ rotate:0deg; } }
-.hud-btn{ display:grid; place-items:center; width:7.4vh; height:7.4vh; border-radius:50%;
-  background: var(--panel); color: var(--ink); box-shadow: 0 .7vh 2vh rgb(0 0 0 / .12);
-  transition: translate .1s, box-shadow .1s; }
-.hud-btn:active{ translate: 0 .5vh; box-shadow: 0 .4vh 1.2vh rgb(0 0 0 / .1); }
+/* 스피커 · 나가기: 유리처럼 — 반투명 흰색 + 뒤 배경 흐림 + 빛 받는 위쪽 테두리 */
+.hud-btn{ display:grid; place-items:center; width:7.4vh; height:7.4vh; border-radius:50%; color: var(--ink);
+  background: linear-gradient(160deg, rgb(255 255 255 / .62) 0%, rgb(255 255 255 / .3) 100%);
+  -webkit-backdrop-filter: blur(14px) saturate(1.5); backdrop-filter: blur(14px) saturate(1.5);
+  border: 1.5px solid rgb(255 255 255 / .72);
+  box-shadow: inset 0 .25vh .5vh rgb(255 255 255 / .55), inset 0 -.4vh .8vh rgb(255 255 255 / .12), 0 .7vh 2vh rgb(40 60 90 / .14);
+  transition: translate .1s, box-shadow .1s, background-color .15s; }
+.hud-btn:active{ translate: 0 .5vh; box-shadow: inset 0 .25vh .5vh rgb(255 255 255 / .5), 0 .4vh 1.2vh rgb(40 60 90 / .12); }
+.hud-btn svg{ filter: drop-shadow(0 .1vh .15vh rgb(255 255 255 / .6)); }   /* 흐린 배경 위에서도 아이콘이 또렷하게 */
+/* 흐림을 못 쓰는 브라우저는 예전처럼 거의 불투명한 흰색 */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))){
+  .hud-btn, .vol-panel{ background: var(--panel); } }
 .c-shadow{ background: radial-gradient(ellipse, rgb(0 0 0 / .28), transparent 72%); }
 .hud-btn svg{ width:3.8vh; height:3.8vh; fill:none; stroke:currentColor; stroke-width:2.2; stroke-linecap:round; stroke-linejoin:round; }
 .hud-btn .ic-off{ display:none; }
@@ -228,19 +236,22 @@
 /* ── 소리 크기: 스피커를 누르면 아래로 세로 막대가 펼쳐져요 (위 = 크게, 맨 아래 = 소리 끔) ── */
 .vol{ position:relative; }
 .vol-panel{ position:absolute; left:50%; top: calc(100% + 1.2vh); translate:-50% 0; width:7.4vh; height:30vh; padding:2.6vh 0;
-  border-radius:999px; background: var(--panel); box-shadow: 0 .7vh 2vh rgb(0 0 0 / .12); display:grid; place-items:center;
+  border-radius:999px; display:grid; place-items:center;
+  background: linear-gradient(170deg, rgb(255 255 255 / .62) 0%, rgb(255 255 255 / .34) 100%);   /* 스피커 버튼과 같은 유리 */
+  -webkit-backdrop-filter: blur(14px) saturate(1.5); backdrop-filter: blur(14px) saturate(1.5);
+  border: 1.5px solid rgb(255 255 255 / .72);
+  box-shadow: inset 0 .25vh .5vh rgb(255 255 255 / .55), 0 .7vh 2vh rgb(40 60 90 / .14);
   touch-action:none; cursor:pointer; outline:none;
   opacity:0; scale:.9 .6; transform-origin: 50% 0; pointer-events:none; transition: opacity .18s, scale .22s cubic-bezier(.3,1.4,.5,1); }
 .vol.open .vol-panel{ opacity:1; scale:1; pointer-events:auto; }
-.vol-track{ position:relative; width:1.5vh; height:100%; border-radius:999px; background: oklch(0.86 0.02 240); }
+.vol-track{ position:relative; width:1.5vh; height:100%; border-radius:999px; background: rgb(60 80 110 / .16); box-shadow: inset 0 .15vh .3vh rgb(40 60 90 / .14); }
 .vol-fill{ position:absolute; left:0; right:0; bottom:0; height: calc(var(--v, 1) * 100%); border-radius:999px;
   background: linear-gradient(to top, var(--p1), oklch(0.78 0.09 250)); }
 .vol-thumb{ position:absolute; left:50%; bottom: calc(var(--v, 1) * 100%); translate:-50% 50%; width:4.6vh; height:4.6vh; border-radius:50%;
   background:#fff; box-shadow: 0 .5vh 1.2vh rgb(0 0 0 / .22), inset 0 0 0 .55vh var(--p1); transition: scale .12s; }
 .vol-panel:active .vol-thumb, .vol-panel:focus-visible .vol-thumb{ scale:1.12; }
 .hud-btn.low .ic-on path:nth-child(3){ opacity:.2; }               /* 소리가 작으면 바깥 물결 하나를 흐리게 */
-@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]) .vol-track{ background: oklch(1 0 0 / .16); } }
-:root[data-theme="dark"] .vol-track{ background: oklch(1 0 0 / .16); }
+/* 소리 막대 길은 다크 모드에서도 같은 색 — 유리 패널 위에서 흰 길은 안 보여요 */
 
 /* ── 내 차례 가이드: 마디가 보이는 3D 손이 내 카드를 톡톡 ── */
 .tap-hand{ position:absolute; left:34%; top:49%; width:48%; pointer-events:none; opacity:0; transition: opacity .25s; }
