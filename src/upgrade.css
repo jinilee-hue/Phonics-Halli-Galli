@@ -1,0 +1,380 @@
+/* 원본(style.css) 위에 얹는 업그레이드 스타일 — 인트로 영상, BI 로고, 종 그림, 게임 상단 버튼, 손 가이드, 결과 화면 */
+
+/* ── 핑크·보라 칸과 안의 카드 더미 ──
+   칸 높이를 카드에 맞추고, 카드는 그림(3:4)보다 납작하게(5:6) 해서
+   기울어진 탁자 위에서도 세로로 길어 보이지 않게. */
+.tray{ top: 30%; height: auto; grid-template-rows: auto auto; }
+.tray .well{ height: auto; align-self: center; padding: 1.2vh 0 1.8vh; }
+.deck{ width: 70%; aspect-ratio: 978 / 1431; }
+.deck i{ padding:0; background:none; box-shadow:none; overflow:visible; transform-origin: 50% 50%; }
+.deck i:nth-child(1){ translate: 0 1.8vh; scale: .96; }
+.deck i:nth-child(2){ translate: 0 .9vh; scale: .98; }
+.deck i:nth-child(3){ padding:0; background:none; transform-origin: 50% 50%; scale: 1; }
+.deck i img{ display:block; width:100%; height:100%; object-fit:cover; pointer-events:none; }
+.deck i:nth-child(3) img{ filter: drop-shadow(0 .35vh .6vh rgb(0 0 0 / .16)); }
+.tray.p2:not(.turn) .deck{ filter: brightness(.96); }
+.slots{ top: calc(30% + 20px); width: 6.4%; gap: .5vh; }
+.slot{ aspect-ratio: 1208 / 1524; overflow: hidden; border-radius: .7vh; }
+.slot:not(.has):not(.show-card){
+  box-shadow: inset 0 .55vh 1.1vh rgb(0 0 0 / .28), inset 0 -.25vh .4vh rgb(255 255 255 / .32);
+}
+.slot .got-card{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; border-radius:inherit;
+  opacity:0; scale:.4; pointer-events:none; transition: opacity .2s, scale .35s cubic-bezier(.3,1.7,.5,1); }
+.slot.has .got-card, .slot.show-card .got-card{ opacity:1; scale:1; }
+.slot.lose .got-card{ animation: lose .45s forwards; }
+.slot .token{ inset:auto; left:50%; top:46%; width:52%; height:auto; aspect-ratio:1; translate:-50% -50%; z-index:1; }
+.slot .token img{ width:100%; height:100%; margin:0; filter: drop-shadow(0 .25vh .4vh rgb(0 0 0 / .28)); }
+.token{ background:none; box-shadow:none; color:transparent; }
+.token img{ width:122%; height:122%; margin:-11%; object-fit:contain; display:block; pointer-events:none;
+  filter: drop-shadow(0 .4vh .45vh rgb(0 0 0 / .22)); }
+/* 나온 카드(3:4, 22vh)와 같은 세로 비율. 테두리가 카드를 살짝 감싸게 24vh, 자리는 위로. */
+.spot{ top: 46%; width: 24vh; aspect-ratio: 3 / 4; }
+
+/* ── 자리: 나(파랑)는 오른쪽, Coco(분홍)는 왼쪽 ── */
+.tray.p1{ left:auto; right:3%; }
+.tray.p2{ right:auto; left:3%; }
+.slots.p1{ left:auto; right:25%; }
+.slots.p2{ right:auto; left:25%; }
+[data-screen="title"] .tray.p1, [data-screen="title"] .slots.p1{ translate: 30vw 0; }
+[data-screen="title"] .tray.p2, [data-screen="title"] .slots.p2{ translate: -30vw 0; }
+.coco-spot{ right:auto; left:7%; }
+[data-screen="title"] .coco-spot{ translate: -24vw 0; }
+@keyframes lean{ 50%{ translate:3vh .6vh; rotate:14deg; } }          /* Coco가 종 쪽(오른쪽)으로 몸을 기울임 */
+.bubble{ translate:none; padding:0; background:none; border-radius:0; box-shadow:none; filter:none; }
+.bubble::after{ display:none; }
+.bubble span{ position:relative; z-index:1; display:block; padding:2.8vh 3.4vh 3vh;
+  -webkit-mask: url("../assets/cloud.svg?v=2") center / 100% 100% no-repeat;
+  mask: url("../assets/cloud.svg?v=2") center / 100% 100% no-repeat;
+  background:
+    radial-gradient(55% 48% at 34% 28%, #fff 0%, rgb(255 255 255 / 0) 62%),
+    linear-gradient(180deg, #fff 0%, #f7fafd 42%, #d5e1ee 78%, #c3d3e4 100%);
+  filter: drop-shadow(0 .35vh 0 #c5d4e4) drop-shadow(0 1.15vh .55vh rgb(70 96 130 / .28)); }
+.bubble.show{ animation: bub 3.4s ease-out both; }
+.bell .side.l{ background: radial-gradient(circle at 100% 60%, transparent 45%, var(--p2) 100%); }   /* 왼쪽 빛 = Coco */
+.bell .side.r{ background: radial-gradient(circle at 0% 60%, transparent 45%, var(--p1) 100%); }     /* 오른쪽 빛 = 나 */
+
+/* ── 5세 그림 카드 (assets/card → assets/card_web, 낱말 · 개수 · 둥근 테두리까지 그려진 카드) ──
+   그림이 카드 앞면 전체라 종이 바탕 · 여백 · 아래 글자는 숨기고, 그림 모서리(폭의 7.5%)에 맞춰 둥글게. */
+.card.has-art .front{ padding:0; display:block; background:none; border-radius: calc(22vh * .075); }
+.card.has-art .card-img{ display:block; width:100%; height:100%; border-radius:inherit; pointer-events:none; }
+.card.has-art .word{ position:absolute; width:1px; height:1px; overflow:hidden; clip-path: inset(50%); }   /* 화면엔 안 보이고 읽기 도구용 */
+
+/* 시작 화면 카드: 종을 가운데 두고 탁자 위를 빙글빙글 (인트로 영상처럼) — 자리는 src/orbit.js가 매 순간 계산
+   종 뒤 층(.orbit-back, .scene 맨 앞)과 종 앞 층(.orbit-front, .title 맨 앞)에 같은 카드를 두고 있는 쪽만 보여 줘요.
+   로고 · START · 단계 고르기는 늘 카드 위. 카드 폭 26vh = orbit.js의 SIZE (뒤쪽 0.72배 · 앞쪽 1.18배) */
+.orbit{ position:absolute; inset:0; z-index:0; pointer-events:none; transition: opacity .5s; }   /* z-index:0 → 카드 겹침 순서가 이 층 안에서만 (START · 로고 · 단계 고르기는 늘 위) */
+.orb{ position:absolute; left:0; top:0; width:26vh; aspect-ratio: 3 / 4; will-change: transform; visibility:hidden;
+  transform-style: preserve-3d; }
+/* 앞면(카드 그림) · 뒷면(assets/card/my_card · coco_card → card_web) — 뒤집힐 때 뒷면이 보여요 */
+.orb-face, .orb-back{ position:absolute; inset:0; border-radius: 7.5% / 5.625%; backface-visibility:hidden; -webkit-backface-visibility:hidden; }
+.orb-face img, .orb-back img{ display:block; width:100%; height:100%; border-radius:inherit;
+  filter: drop-shadow(.8vh 1.8vh 1.2vh oklch(0.35 0.06 215 / .35)); }
+.orb-back{ rotate: y 180deg; }
+[data-screen="game"] .orbit{ opacity:0; }
+
+/* ── 다시 듣기: 글자 대신 스피커 아이콘 ── */
+.replay{ width:7vh; height:7vh; padding:0; border-radius:50%; font-size:0; }
+.replay svg{ width:3.8vh; height:3.8vh; fill:none; stroke:currentColor; stroke-width:2.2; stroke-linecap:round; stroke-linejoin:round; }
+
+/* ── 가운데 종 (assets/bell.png — 얼굴과 빨간 받침까지 그려진 그림, 1499×1375 · 여백 없이 가운데) ──
+   새 그림은 테두리까지 꽉 차서, 예전 종과 같은 크기로 보이게 폭을 93%로 둬요. */
+.bell{ aspect-ratio: 1499 / 1375; width: 93%; }
+.bell .bell-img{ position:absolute; inset:0; width:100%; height:100%; object-fit:contain;
+  transform-origin: 50% 92%; pointer-events:none; }
+.bell.hit .bell-img{ animation: bell-press .34s ease-out; }
+@keyframes bell-press{ 30%{ scale: 1.05 .9; } 100%{ scale: 1; } }
+
+/* ── 종 표정과 몸짓 (src/bell-face.js · 인트로 영상 참고) ──
+   얼굴 지운 몸통 + 눈 · 입 조각 + 새로 그린 선(감은 눈 ⌒ · 활짝 웃는 입 · 동그란 입). 조각을 다 불러오면 .faced */
+.bell-art{ position:absolute; inset:0; visibility:hidden; pointer-events:none; transform-origin: 50% 92%;
+  transition: rotate .3s cubic-bezier(.3,1.5,.5,1); }
+.bell.faced .bell-art{ visibility:visible; animation: bf-breathe 2.8s ease-in-out infinite; }
+.bell.faced .bell-img, .bell.faced .waves{ visibility:hidden; }
+.bell-squash{ position:absolute; inset:0; transform-origin: 50% 92%; }
+.bell-squash > img{ position:absolute; display:block; user-select:none; -webkit-user-drag:none; }
+.bell-squash > .bf-body{ inset:0; width:100%; height:100%; }
+.bf-lines{ position:absolute; inset:0; width:100%; height:100%; overflow:visible; }
+@keyframes bf-breathe{ 50%{ scale: .993 1.012; } }                                   /* 숨 쉬듯 살짝 */
+.bell.hit .bell-squash{ animation: bf-press .52s cubic-bezier(.25,.8,.35,1); }       /* 납작 → 통 → 제자리 */
+@keyframes bf-press{ 0%{ scale:1; } 16%{ scale: 1.07 .86; } 42%{ scale: .97 1.05; } 68%{ scale: 1.01 .99; } 100%{ scale:1; } }
+/* 눈: 동그란 눈이 납작해지며 ⌒ 선으로 (깜빡 · 꾹 감기 = 두 눈, 윙크 = 오른쪽 눈 + 고개 갸웃) */
+.bf-eye{ transition: scale .08s ease-in, opacity .04s linear .04s; }
+.bf-closed{ opacity:0; transition: opacity .04s linear .04s; }
+.bell[data-eyes="closed"] .bf-eye, .bell[data-eyes="wink"] .bf-eye.r{ scale: 1.08 .1; opacity:0; }
+.bell[data-eyes="closed"] .bf-closed, .bell[data-eyes="wink"] .bf-closed.r{ opacity:1; }
+.bell[data-eyes="wink"] .bell-art{ rotate: 3deg; }
+/* 입: 맞히면 활짝 · 틀리면 동그랗게 '앗' (눈도 살짝 커짐) */
+.bf-mouth{ transition: opacity .06s; }
+.bf-happy, .bf-o{ opacity:0; scale:.5; transform-box: fill-box; transform-origin: 50% 20%;
+  transition: opacity .08s, scale .22s cubic-bezier(.3,1.7,.5,1); }
+.bell[data-mouth="happy"] .bf-mouth, .bell[data-mouth="o"] .bf-mouth{ opacity:0; }
+.bell[data-mouth="happy"] .bf-happy, .bell[data-mouth="o"] .bf-o{ opacity:1; scale:1; }
+.bell[data-mouth="o"] .bf-eye{ scale: 1.12; }
+.bf-blush{ transition: scale .25s cubic-bezier(.3,1.6,.5,1); }
+.bell[data-mouth="happy"] .bf-blush{ scale: 1.12; }                                 /* 활짝 웃을 때 볼이 살짝 커짐 */
+/* 소리 물결: 종 양옆 알록달록 호 3겹 (인트로의 분홍 · 노랑 · 민트 · 하늘) */
+.bell-rings{ position:absolute; inset:0; width:100%; height:100%; overflow:visible; pointer-events:none; }
+.bell-rings path{ fill:none; stroke-width:30; stroke-linecap:round; opacity:0; transform-box: view-box; transform-origin: 50% 44%; }
+.bell.hit .bell-rings path{ animation: bf-ring .7s cubic-bezier(.2,.75,.3,1) calc(var(--i) * 60ms) both; }
+@keyframes bf-ring{ 0%{ opacity:0; scale:.86; } 22%{ opacity:1; } 100%{ opacity:0; scale:1.14; } }
+@media (prefers-reduced-motion: reduce){ .bell.faced .bell-art{ animation:none; } .bell[data-eyes="wink"] .bell-art{ rotate:0deg; } }
+
+/* 종 그림자: 그림에 붙인 그림자는 그림 아래 끝에서 잘려 보여서 쓰지 않고, 탁자 면에 깔아요.
+   받침 바로 밑의 진한 접지 그림자 + 오른쪽 아래로 퍼지는 옅은 그림자(다른 카드·트레이와 같은 빛 방향).
+   색은 탁자 색 계열이라 배경과 어울려요. 종의 발끝은 bell-spot 세로 50% 선입니다. */
+:root{
+  --bell-ao: oklch(0.36 0.07 215 / .5);
+  --bell-cast: oklch(0.42 0.06 215 / .26);
+}
+/* 맥이 어두운 화면이어도 보드판·버튼은 원래 밝은색 그대로 */
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme: light;
+    --floor-a: oklch(0.88 0.05 75);
+    --floor-b: oklch(0.82 0.06 70);
+    --table: oklch(0.86 0.055 208);
+    --table-deep: oklch(0.8 0.06 210);
+    --rim: oklch(0.8 0.065 212);
+    --rim-side: oklch(0.68 0.07 215);
+    --paper: oklch(0.99 0.004 90);
+    --cast: oklch(0.45 0.06 215 / .35);
+    --panel: oklch(1 0 0 / .9);
+    --ink: oklch(0.34 0.03 50);
+    --ink-soft: oklch(0.5 0.03 60);
+    --bell-ao: oklch(0.36 0.07 215 / .5);
+    --bell-cast: oklch(0.42 0.06 215 / .26);
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme: light;
+  --floor-a: oklch(0.88 0.05 75);
+  --floor-b: oklch(0.82 0.06 70);
+  --table: oklch(0.86 0.055 208);
+  --table-deep: oklch(0.8 0.06 210);
+  --rim: oklch(0.8 0.065 212);
+  --rim-side: oklch(0.68 0.07 215);
+  --paper: oklch(0.99 0.004 90);
+  --cast: oklch(0.45 0.06 215 / .35);
+  --panel: oklch(1 0 0 / .9);
+  --ink: oklch(0.34 0.03 50);
+  --ink-soft: oklch(0.5 0.03 60);
+  --bell-ao: oklch(0.36 0.07 215 / .5);
+  --bell-cast: oklch(0.42 0.06 215 / .26);
+}
+.bell-spot .bell-shadow{ inset:auto; left:50%; top:50%; width:0; height:0; border-radius:0; background:none; }
+.bell-shadow::before, .bell-shadow::after{ content:""; position:absolute; border-radius:50%; translate:-50% -50%; }
+.bell-shadow::after{ left:-.4vh; top:-6.4vh; width:31vh; height:16vh;
+  background: radial-gradient(closest-side, var(--bell-ao) 62%, transparent 100%); }
+.bell-shadow::before{ left:2.6vh; top:-4.6vh; width:38vh; height:22vh;
+  background: radial-gradient(closest-side, var(--bell-cast) 25%, transparent 100%); }
+.bell-spot:has(.bell.hit) .bell-shadow::after{ animation: ao-press .34s ease-out; }
+@keyframes ao-press{ 30%{ scale: 1.05 1.08; } 100%{ scale: 1; } }
+
+/* ── START 버튼 (assets/start_btn.png — 글자와 입체 옆면까지 그려진 그림) ──
+   그림 비율(1306×622) 그대로, 원래 버튼 자리(가운데 아래)에 둡니다. 그림자는 버튼 모양을 따라 아래로 은은하게. */
+.start{ width:30vh; aspect-ratio: 1306 / 622; padding:0; border-radius:999px; background:none; box-shadow:none;
+  font-size:0; line-height:0; filter: drop-shadow(0 1.4vh 1.3vh var(--cast));
+  transition: opacity .4s, translate .1s, scale .1s, filter .1s; }
+.start img{ display:block; width:100%; height:100%; pointer-events:none; }
+.start:active{ translate:-50% .7vh; scale:.97; box-shadow:none; filter: drop-shadow(0 .5vh .6vh var(--cast)); }
+@media (hover:hover){ .start:hover{ scale:1.03; } .start:active{ scale:.97; } }
+
+/* ── 게임 화면 위쪽: 왼쪽 로고 + 단계, 오른쪽 소리 · 나가기 ── */
+.hud{ position:fixed; z-index:6; top:2.2vh; left:2.4vw; right:2.4vw; display:flex; align-items:center; justify-content:space-between;
+  pointer-events:none; transition: opacity .4s; }
+.hud > *{ pointer-events:auto; }
+/* 시작 화면에서도 소리 · 나가기 버튼은 보여요 (로고 · 단계 · 진행 시간은 게임 화면에서만) */
+.hud-l, .hud-time{ transition: opacity .4s; }
+[data-screen="title"] .hud-l, [data-screen="title"] .hud-time{ opacity:0; pointer-events:none; }
+.app.intro-on .hud{ opacity:0; pointer-events:none; }
+.hud-l{ display:flex; align-items:center; gap:1.6vh; }
+.hud-logo{ height:9vh; width:auto; filter: drop-shadow(0 .8vh .8vh oklch(0.3 0.05 60 / .3)); }
+.hud .level-pill{ position:static;
+  box-shadow: 0 .7vh 2vh rgb(0 0 0 / .12); }
+.hud-r{ display:flex; align-items:center; gap:1.4vh; }
+.hud-time{ display:flex; align-items:center; justify-content:center; gap:.7vh; min-width:14vh; height:7.4vh; padding:0 1.8vh 0 1.4vh;
+  border-radius:999px; background: var(--panel); color: var(--ink);
+  box-shadow: 0 .7vh 2vh rgb(0 0 0 / .12);
+  font: 700 3.4vh/1 "Fredoka", sans-serif; font-variant-numeric: tabular-nums; letter-spacing:.02em; }
+.hud-time img{ width:5vh; height:5vh; object-fit:contain; display:block; pointer-events:none; }
+.hud-time b{ font: inherit; }
+.hud-btn{ display:grid; place-items:center; width:7.4vh; height:7.4vh; border-radius:50%;
+  background: var(--panel); color: var(--ink); box-shadow: 0 .7vh 2vh rgb(0 0 0 / .12);
+  transition: translate .1s, box-shadow .1s; }
+.hud-btn:active{ translate: 0 .5vh; box-shadow: 0 .4vh 1.2vh rgb(0 0 0 / .1); }
+.c-shadow{ background: radial-gradient(ellipse, rgb(0 0 0 / .28), transparent 72%); }
+.hud-btn svg{ width:3.8vh; height:3.8vh; fill:none; stroke:currentColor; stroke-width:2.2; stroke-linecap:round; stroke-linejoin:round; }
+.hud-btn .ic-off{ display:none; }
+.hud-btn[aria-pressed="true"] .ic-on{ display:none; }
+.hud-btn[aria-pressed="true"] .ic-off{ display:block; }
+.hud-btn[aria-pressed="true"]{ color: var(--danger); }
+
+/* ── 소리 크기: 스피커를 누르면 아래로 세로 막대가 펼쳐져요 (위 = 크게, 맨 아래 = 소리 끔) ── */
+.vol{ position:relative; }
+.vol-panel{ position:absolute; left:50%; top: calc(100% + 1.2vh); translate:-50% 0; width:7.4vh; height:30vh; padding:2.6vh 0;
+  border-radius:999px; background: var(--panel); box-shadow: 0 .7vh 2vh rgb(0 0 0 / .12); display:grid; place-items:center;
+  touch-action:none; cursor:pointer; outline:none;
+  opacity:0; scale:.9 .6; transform-origin: 50% 0; pointer-events:none; transition: opacity .18s, scale .22s cubic-bezier(.3,1.4,.5,1); }
+.vol.open .vol-panel{ opacity:1; scale:1; pointer-events:auto; }
+.vol-track{ position:relative; width:1.5vh; height:100%; border-radius:999px; background: oklch(0.86 0.02 240); }
+.vol-fill{ position:absolute; left:0; right:0; bottom:0; height: calc(var(--v, 1) * 100%); border-radius:999px;
+  background: linear-gradient(to top, var(--p1), oklch(0.78 0.09 250)); }
+.vol-thumb{ position:absolute; left:50%; bottom: calc(var(--v, 1) * 100%); translate:-50% 50%; width:4.6vh; height:4.6vh; border-radius:50%;
+  background:#fff; box-shadow: 0 .5vh 1.2vh rgb(0 0 0 / .22), inset 0 0 0 .55vh var(--p1); transition: scale .12s; }
+.vol-panel:active .vol-thumb, .vol-panel:focus-visible .vol-thumb{ scale:1.12; }
+.hud-btn.low .ic-on path:nth-child(3){ opacity:.2; }               /* 소리가 작으면 바깥 물결 하나를 흐리게 */
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]) .vol-track{ background: oklch(1 0 0 / .16); } }
+:root[data-theme="dark"] .vol-track{ background: oklch(1 0 0 / .16); }
+
+/* ── 내 차례 가이드: 마디가 보이는 3D 손이 내 카드를 톡톡 ── */
+.tap-hand{ position:absolute; left:34%; top:49%; width:48%; pointer-events:none; opacity:0; transition: opacity .25s; }
+.tap-hand img{ position:relative; display:block; width:100%; height:auto; pointer-events:none;
+  filter: drop-shadow(0 .8vh .7vh oklch(0.35 0.04 260 / .32)); transform-origin: 38% 1%; }
+/* 내 차례 노란 실선 대신, 옅은 흰 점선이 천천히 밝아졌다 사라져요 */
+.tray.turn{ outline:none; }
+.tray.turn::after{ content:""; position:absolute; inset:-1vh; border-radius:4vh; pointer-events:none;
+  border:.42vh dashed oklch(1 0 0 / .88); animation: turn-breathe 1.6s ease-in-out infinite; }
+@keyframes turn-breathe{ 0%, 100%{ opacity:.22; } 50%{ opacity:1; } }
+.tap-hand .ripple{ position:absolute; left:38%; top:1%; width:4vh; height:4vh; margin:-2vh 0 0 -2vh; border-radius:50%;
+  border:.5vh solid oklch(1 0 0 / .95); opacity:0; }
+.app.my-turn .tap-hand{ opacity:1; }
+.app.my-turn .tap-hand img{ animation: tap 1.2s ease-in-out infinite; }
+.app.my-turn .tap-hand .ripple{ animation: tap-ripple 1.2s ease-out infinite; }
+@keyframes tap{ 0%, 100%{ translate: 1.6vh 2vh; scale:1; } 40%{ translate:0 0; scale:1; } 55%{ translate:0 .4vh; scale:.92; } 70%{ translate:0 0; scale:1; } }
+@keyframes tap-ripple{ 0%, 45%{ opacity:0; scale:.4; } 55%{ opacity:1; scale:.6; } 100%{ opacity:0; scale:1.8; } }
+
+/* ── 시작 화면 배경 (assets/intro_bg.png — 놀이방과 탁자가 그려진 그림) ──
+   CSS로 그리던 나무 바닥·파란 탁자는 이 화면에서만 걷어 내고, 그림이 가득 차게 깔아요. */
+[data-screen="title"]{
+  background: #c9e4f5 url("../assets/intro_bg.png") center / cover no-repeat;
+}
+/* 게임 화면은 같은 놀이방이되, 가운데 바닥은 비워서 파란 탁자가 올라앉아요 */
+[data-screen="game"]{
+  background: #e7d4f2 url("../assets/game_bg.jpg") center top / cover no-repeat;
+}
+[data-screen="title"] .table{
+  background: transparent;
+  box-shadow: none;
+}
+[data-screen="title"] .felt{
+  background: transparent;
+  box-shadow: none;
+}
+/* 시작 화면 종은 원래(50%)보다 조금만 위로 */
+[data-screen="title"] .bell-spot{ top: 45%; }
+/* 게임 화면 종은 발 위치는 두고 더 크게 */
+[data-screen="game"] .bell-spot{ scale: 1.42; }
+/* Coco는 분홍 칸 바로 위까지 내려 붙임 */
+[data-screen="game"] .coco-spot{ top: 16%; }
+
+/* ── 인트로 영상 ── */
+.intro{ position:fixed; inset:0; z-index:15; overflow:hidden;
+  background: #c9e4f5 url("../assets/intro_bg.png") center / cover no-repeat;
+  transition: opacity .6s ease; }
+.intro video{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; }
+.intro.out{ opacity:0; pointer-events:none; }
+.intro-btn{ position:absolute; bottom:4.5vh; display:inline-flex; align-items:center; gap:1vh; height:6.4vh; padding:0 3vh;
+  border-radius:999px; font: 600 2.6vh/1 "Fredoka","Jua",sans-serif; color:#fff;
+  background: oklch(0.3 0.05 230 / .38); border:.3vh solid oklch(1 0 0 / .7);
+  -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); box-shadow: 0 1vh 2vh oklch(0.3 0.05 230 / .25); }
+.intro-btn svg{ width:3.2vh; height:3.2vh; fill:#fff; }
+.intro-skip{ right:3vw; letter-spacing:.14em; opacity:0; pointer-events:none; transition: opacity .4s; }
+.intro-skip.show{ opacity:1; pointer-events:auto; }
+.intro-tap{ position:absolute; left:50%; top:50%; translate:-50% -50%; width:18vh; height:18vh; border-radius:50%;
+  display:none; place-items:center; background: linear-gradient(to bottom, oklch(0.74 0.15 10), var(--p2));
+  box-shadow: 0 1.2vh 0 var(--p2-deep), 0 3vh 3vh var(--cast); }
+.intro.need-tap .intro-tap{ display:grid; }
+.intro-tap svg{ width:8vh; height:8vh; fill:#fff; margin-left:1vh; }
+
+/* 인트로가 덮고 있는 동안 시작 화면은 숨겼다가, 끝나면 BI가 통통 튀어 들어온다 */
+.app.intro-on .logo img, .app.intro-on .start, .app.intro-on .level{ opacity:0; }
+.app.intro-done .logo img{ animation: bi-in .8s cubic-bezier(.2,1.35,.4,1) both; }
+@keyframes bi-in{ from{ opacity:0; scale:.7; translate:0 -3vh; } }
+
+/* ── BI 로고 (assets/bi.png) ── */
+.logo{ font-size:0; line-height:0; }
+.logo img{ display:block; height:25vh; width:auto; max-width:64vw; object-fit:contain;
+  filter: drop-shadow(0 2vh 1.8vh oklch(0.4 0.06 215 / .32)); }
+/* 단계 고르기는 오른쪽 아래로: 위쪽은 BI가 넓게 쓰고, START와는 겹치지 않게 폭을 제한 */
+.level{ top:auto; bottom:4.5vh; max-width: min(36vw, calc(50vw - 22vh)); }
+/* 지금은 숨김 (사용자 요청) — 늘 1단계(5세)로 시작. 다시 보이게 하려면 이 줄만 지우면 돼요 */
+.level{ display:none; }
+
+/* 결과가 뜨면 뒤의 게임판은 흐리게 */
+.verdict{ -webkit-backdrop-filter: blur(5px); backdrop-filter: blur(5px); background: oklch(0.3 0.04 220 / .42); }
+
+/* ── 결과: 왼쪽 승패 · 오른쪽 우리 반 순위 ── */
+.verdict .result{ display:flex; align-items:stretch; gap:2.4vw; }
+.r-card{ --soft: var(--ink-soft); --well: oklch(0.5 0.03 220 / .09); --row: oklch(1 0 0 / .6);
+  position:relative; border-radius:5vh; background: var(--panel); box-shadow: 0 3vh 6vh var(--cast);
+  padding:3.6vh 4vh; animation: rise .5s cubic-bezier(.2,1.3,.4,1) both; }
+.r-rank{ animation-delay:.12s; }
+
+/* 왼쪽 */
+.r-me{ width:min(40vw, 62vh); display:flex; flex-direction:column; align-items:center; justify-content:space-evenly; text-align:center; gap:1.6vh; }
+.r-kicker{ font-size:2.3vh; color: var(--soft); padding:.8vh 2.2vh; border-radius:999px; background: var(--well); }
+.r-me h2{ font: 700 11.5vh/1 "Fredoka","Jua",sans-serif; }
+.r-sub{ font-size:2.7vh; color: var(--soft); margin-top:-1vh; }
+.r-vs{ display:flex; align-items:flex-end; gap:2.4vh; padding:1.4vh 2.6vh 1.8vh; border-radius:3vh; background: var(--well); max-width:100%; }
+.r-side{ display:flex; flex-direction:column; align-items:center; gap:.8vh; transition: opacity .3s; }
+.r-side b{ order:-1; font-size:2.8vh; font-weight:400; line-height:1; }
+.r-side.p1 b{ color: var(--p1); } .r-side.p2 b{ color: var(--p2); }
+.r-side:not(.won){ opacity:.55; }
+.r-tokens{ display:flex; gap:.8vh; }
+.mt, .ms{ display:grid; place-items:center; flex:0 0 auto; border-radius:50%; font: 700 2.6vh/1 "Fredoka",sans-serif; color:transparent;
+  background: oklch(0.5 0.03 220 / .14); box-shadow: inset 0 .4vh .6vh oklch(0.3 0.04 220 / .16); }
+.mt{ width:5vh; height:5vh; }
+.mt.got, .ms.got{ color:#fff; background: radial-gradient(circle at 40% 35%, oklch(0.84 0.09 355), var(--token) 70%);
+  box-shadow: 0 .5vh 0 var(--token-deep); }
+.mt.got:has(img), .ms.got:has(img){ background:none; box-shadow:none; }
+.mt img, .ms img{ width:118%; height:118%; margin:-9%; object-fit:contain; display:block; pointer-events:none; }
+.mt.got{ animation: mt-pop .45s cubic-bezier(.3,1.7,.5,1) both; animation-delay: var(--d); }
+@keyframes mt-pop{ from{ scale:.2; opacity:0; } }
+.vs{ font: 700 2.4vh/1 "Fredoka",sans-serif; color: var(--soft); letter-spacing:.06em; align-self:center; margin-top:3.6vh; }
+.r-stats{ display:grid; grid-template-columns:repeat(3, 1fr); gap:1.2vh; width:100%; }
+.r-stats div{ padding:1.4vh .6vh 1.2vh; border-radius:2.4vh; background: var(--well); }
+.r-stats dt{ font-size:2vh; color: var(--soft); }
+.r-stats dd{ margin-top:.7vh; font-size:2.2vh; }
+.r-stats dd b{ font: 700 4.4vh/1 "Fredoka",sans-serif; margin-right:.3vh; }
+.r-me .again{ margin-top:.6vh; }
+
+/* 오른쪽 */
+.r-rank{ width:min(50vw, 78vh); display:flex; flex-direction:column; gap:1.5vh; }
+.r-rank header{ display:flex; align-items:center; justify-content:space-between; }
+.r-rank h3{ font-size:3.6vh; font-weight:400; }
+.r-demo{ font-size:1.9vh; padding:.8vh 1.8vh; border-radius:999px; background: oklch(0.9 0.09 95 / .7); color: oklch(0.45 0.08 70); }
+.r-my{ display:flex; align-items:center; gap:1.4vh; padding:1.3vh 2.6vh 1.3vh 1.4vh; border-radius:3vh;
+  background: color-mix(in oklch, var(--p1) 15%, transparent); box-shadow: inset 0 0 0 .4vh color-mix(in oklch, var(--p1) 50%, transparent);
+  animation: rise .5s cubic-bezier(.2,1.3,.4,1) .35s both; }
+.r-my .av{ width:7vh; height:7vh; font-size:3.2vh; }
+.r-my .lbl{ font-size:2.6vh; color: var(--soft); margin-right:.4vh; }
+.r-my b{ font: 700 8.4vh/1 "Fredoka",sans-serif; color: var(--p1); }
+.r-my .unit{ font-size:3.8vh; }
+.r-my small{ font-size:2.4vh; color: var(--soft); margin-left:.6vh; }
+.r-cols, .rk{ display:grid; grid-template-columns: 4.6vh 4.6vh 1fr 12vh 9vh; align-items:center; column-gap:1.4vh; }
+.r-cols{ padding:0 2.2vh 0 1.2vh; font-size:1.8vh; color: var(--soft); }
+.r-cols span:nth-child(4){ text-align:center; }
+.r-cols span:nth-child(5){ text-align:right; }
+.rk-s{ display:flex; justify-content:center; gap:.6vh; }
+.ms{ width:3vh; height:3vh; font-size:1.7vh; }
+.ms.got{ box-shadow: 0 .3vh 0 var(--token-deep); }
+.ms.got:has(img){ box-shadow:none; }
+.r-list{ list-style:none; display:grid; gap:.9vh; }
+.rk{ height:5.6vh; padding:0 2.2vh 0 1.2vh; border-radius:2vh; background: var(--row);
+  animation: rk-in .42s cubic-bezier(.2,1.2,.4,1) both; animation-delay: calc(var(--i) * 70ms + 450ms); }
+@keyframes rk-in{ from{ opacity:0; translate:4vh 0; } }
+.rk-no{ display:grid; place-items:center; width:4.4vh; height:4.4vh; border-radius:50%; font: 700 2.4vh/1 "Fredoka",sans-serif; color: var(--soft); }
+.rk-no.m1{ background: radial-gradient(circle at 38% 32%, oklch(0.97 0.08 98), oklch(0.83 0.15 85)); color: oklch(0.42 0.09 70); box-shadow: 0 .45vh 0 oklch(0.66 0.13 72); }
+.rk-no.m2{ background: radial-gradient(circle at 38% 32%, oklch(0.98 0.004 250), oklch(0.8 0.012 250)); color: oklch(0.42 0.015 250); box-shadow: 0 .45vh 0 oklch(0.64 0.015 250); }
+.rk-no.m3{ background: radial-gradient(circle at 38% 32%, oklch(0.9 0.06 62), oklch(0.7 0.1 50)); color: oklch(0.36 0.07 45); box-shadow: 0 .45vh 0 oklch(0.55 0.09 45); }
+.av{ display:grid; place-items:center; width:4.6vh; height:4.6vh; border-radius:50%; background: var(--av, var(--c-blue));
+  color: var(--ink); font: 600 2.4vh/1 "Fredoka","Jua",sans-serif; box-shadow: inset 0 -.4vh 0 oklch(0 0 0 / .08); }
+.r-my .av, .rk.me .av{ background: var(--p1); color:#fff; }
+.rk-name{ font-size:2.7vh; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.rk-rt{ text-align:right; font-size:1.9vh; color: var(--soft); white-space:nowrap; }
+.rk-rt b{ font: 700 2.9vh/1 "Fredoka",sans-serif; color: var(--ink); margin-right:.2vh; }
+.rk.me{ background: color-mix(in oklch, var(--p1) 20%, var(--paper)); box-shadow: inset 0 0 0 .4vh var(--p1); }
+.rk.me .rk-name{ color: var(--p1-deep); }
+.rk.gap{ display:block; height:auto; padding:0; background:none; box-shadow:none; text-align:center;
+  font: 700 2.4vh/1 "Fredoka",sans-serif; color: var(--soft); letter-spacing:.4em; }
+.r-rule{ margin-top:auto; padding-top:.6vh; text-align:center; font-size:1.9vh; color: var(--soft); }
