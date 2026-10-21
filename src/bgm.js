@@ -14,6 +14,7 @@ const DUCK = 0.4;          // 낱말을 읽는 동안 이만큼으로 줄임
 const AC = window.AudioContext || window.webkitAudioContext;
 let ac = null, master = null, bus = null, buffer = null, loading = null;
 let src = null, screen = null, muted = false, ducked = false, duckTimer = 0, vol = 1;   // vol: 오른쪽 위 소리 막대 (0~1)
+let startAt = 0;                              // 음악이 시작된 시각 (오디오 시계) — 박자 위치 계산용
 
 function context() {
   if (!ac && AC) {
@@ -60,7 +61,8 @@ function play(name) {
       src.buffer = buffer;
       src.loop = true;
       src.connect(bus);
-      src.start(now + 0.02);
+      startAt = now + 0.02;
+      src.start(startAt);
     }
     // 화면이 바뀌면 같은 음악을 끊지 않고 크기만 천천히 바꿈 (시작 화면 → 게임 화면이 자연스럽게 이어짐)
     bus.gain.cancelScheduledValues(now);
@@ -101,5 +103,13 @@ document.addEventListener('visibilitychange', () => {
 // 미리 풀어 둠 (START를 누르기 전에 준비되게)
 if (window.BGM_WAV && AC) setTimeout(() => { load().catch(() => {}); }, 500);
 
-window.BGM = { play, duck, setMuted, setVolume, get state() { return { ctx: ac && ac.state, screen, muted, ducked, vol, ready: !!buffer, level: bus && bus.gain.value, master: master && master.gain.value }; } };
+// 지금 들리는 박자 위치 (몇 번째 박인지, 소수점 = 박 안의 위치). 음악이 안 돌면 null.
+// 반복 구간이 4마디 = 16박이라 처음부터 계속 박자가 맞아요. HUD 시계(src/clock.js)가 이 박자에 맞춰 째깍여요.
+function beat() {
+  if (!ac || !src || !buffer || ac.state !== 'running') return null;
+  const t = ac.currentTime - (ac.outputLatency || ac.baseLatency || 0) - startAt;
+  return t < 0 ? null : t / (buffer.duration / 16);
+}
+
+window.BGM = { play, duck, setMuted, setVolume, beat, get state() { return { ctx: ac && ac.state, screen, muted, ducked, vol, ready: !!buffer, level: bus && bus.gain.value, master: master && master.gain.value }; } };
 })();

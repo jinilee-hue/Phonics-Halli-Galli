@@ -85,7 +85,7 @@
       <div class="level-pill" id="lvPill"></div>
     </div>
     <div class="hud-r">
-      <div class="hud-time" id="hudTime" aria-label="진행 시간"><img src="./assets/time_icon.png" alt="" draggable="false"><b id="hudTimeNum">0:00</b></div>
+      <div class="hud-time" id="hudTime" aria-label="진행 시간"><span class="hud-clock" id="hudClock" aria-hidden="true"><img class="ck-still" src="./assets/time_icon.png" alt="" draggable="false"></span><b id="hudTimeNum">0:00</b></div>
       <div class="vol" id="vol">
         <button class="hud-btn" id="btnSound" aria-label="소리 크기" aria-expanded="false" aria-controls="volPanel" aria-pressed="false">
           <svg class="ic-on" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9.5v5h3.5L12 19V5L7.5 9.5H4z"/><path d="M15.5 9a4 4 0 0 1 0 6"/><path d="M18.2 6.3a8 8 0 0 1 0 11.4"/></svg>
@@ -152,5 +152,7 @@
 <script src="./src/bell-parts.js"></script>
 <script src="./src/bell-face.js"></script>
 <script src="./src/main.js"></script>
+<script src="./src/clock-parts.js"></script>
+<script src="./src/clock.js"></script>
 </body>
 </html>
