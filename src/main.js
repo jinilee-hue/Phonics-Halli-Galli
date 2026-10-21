@@ -152,7 +152,7 @@ function flip(i){
   el.style.setProperty('--fx', i? '-60vh':'60vh'); el.style.setProperty('--fr', i? '-20deg':'20deg');   // 나는 오른쪽, Coco는 왼쪽
   el.style.setProperty('--bk', i? 'var(--p2)':'var(--p1)'); el.style.setProperty('--bks', i? 'var(--p2-soft)':'var(--p1-soft)');
   const art = img ? `<img class="card-img" src="${img}" alt="${c.w}" draggable="false">` : L().pic ? `<div class="art" style="--tint:${TINTS[Math.random()*4|0]}"><small>그림 자리</small><strong>${c.a}</strong></div>` : '';
-  el.innerHTML=`<div class="f front">${art}<div class="word">${c.w}</div><span class="voice" aria-hidden="true"><i></i><i></i><i></i></span></div><div class="f back"><b></b></div>`;
+  el.innerHTML=`<div class="f front">${art}<div class="word">${c.w}</div></div><div class="f back"><b></b></div>`;
   spot.appendChild(el); cur.el=el; $('#replay').disabled=false;
   setTimeout(()=>speak(c.w), 350);
   mood('think');
