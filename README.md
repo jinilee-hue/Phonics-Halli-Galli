@@ -1,5 +1,8 @@
 # Phonics Halli Galli
 
+**공유 주소: https://jinilee-hue.github.io/Phonics-Halli-Galli/**
+(GitHub Pages — main 브랜치에 푸시하면 1~2분 뒤 이 주소에 반영돼요)
+
 파닉스 할리갈리 게임을 업그레이드하는 작업 폴더입니다.
 
 - 원본: Claude 아티팩트 "Phonics Halli Galli — Coco" (공유 → 내보내기 → HTML)
