@@ -31,13 +31,13 @@ const L3_COUNT = new Set([...WORDS.level3.es.map(w => w.base), ...WORDS.level3.t
 
 // 단계별 단어 덱
 const LEVELS = {
-  1:{ name:'1단계 · 5세', desc:`-s 복수형 · 그림 보기 · Coco 느림 · 교재 낱말 ${WORDS.level1.words.length}개`, pic:true,
+  1:{ name:'1단계 · 5세', book:'K', desc:`-s 복수형 · 그림 보기 · Coco 느림 · 교재 낱말 ${WORDS.level1.words.length}개`, pic:true,
       cpu:{ react:[1800,2400], miss:.25, slip:.08, flip:2600 },
       get words(){ return level1Cards(); } },
-  2:{ name:'2단계 · 6세', desc:`같은 단어 짝 (cat / cats) · 그림 보기 · Coco 보통 · 교재 낱말 ${WORDS.level2.words.length}개`, pic:true,
+  2:{ name:'2단계 · 6세', book:'A', desc:`같은 단어 짝 (cat / cats) · 그림 보기 · Coco 보통 · 교재 낱말 ${WORDS.level2.words.length}개`, pic:true,
       cpu:{ react:[1150,1550], miss:.12, slip:.06, flip:2200 },
       get words(){ return level2Cards(); } },
-  3:{ name:'3단계 · 7세', desc:`-es 복수형 + s로 끝나는 단수 함정 · 그림 없이 · Coco 빠름 · 교재 낱말 ${L3_COUNT}개`, pic:false,
+  3:{ name:'3단계 · 7세', book:'B', desc:`-es 복수형 + s로 끝나는 단수 함정 · 그림 없이 · Coco 빠름 · 교재 낱말 ${L3_COUNT}개`, pic:false,
       cpu:{ react:[750,1050], miss:.05, slip:.04, flip:1900 },
       get words(){ return level3Cards(); } }
 };
@@ -80,7 +80,7 @@ function reset(){
   stats.hits=0; stats.rt=[]; stats.miss=0;
   P.forEach(p=>{ p.score=0; p.slots.forEach(s=>s.className='slot'); });
   spot.querySelectorAll('.card').forEach(c=>c.remove()); spot.querySelector('.hint').style.display='';
-  $('#verdict').classList.remove('show'); $('#replay').disabled=true; $('#lvPill').textContent=L().name;
+  $('#verdict').classList.remove('show'); $('#replay').disabled=true; $('#lvPill').textContent=`${L().name} · ${L().book}`;   // 교재 등급까지 (5세 = K 교재)
   mood('idle'); setTurn(ME); resetClock();
 }
 // 게임 진행 시간. 판이 시작되면 0:00부터 흐르고, 끝나면 그 시간에 멈춘다.
