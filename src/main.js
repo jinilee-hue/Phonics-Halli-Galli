@@ -64,12 +64,20 @@ function cocoSay(text, side){
   const b = $(side === 'left' ? '#bubbleL' : '#bubbleR');
   b.querySelector('span').textContent = text;
   const r = coco.getBoundingClientRect();
+  const img = b.querySelector('.cloud');
   const w = b.offsetWidth, h = b.offsetHeight;
+  const iw = img.offsetWidth, ih = img.offsetHeight;
+  const shift = side === 'left' ? .54 : .49;
+  const hang = Math.max(0, shift * ih - h / 2);
+  const sidePad = Math.max(0, (iw - w) / 2);
+  const bleed = innerHeight * .02;
+  const felt = document.querySelector('.felt').getBoundingClientRect();
+  const minTop = felt.top + innerHeight * .015 + hang;
   let left, top;
   if(side === 'left'){ left = r.left - w + 8; top = r.top - h * .15; }
-  else { left = r.right - 8; top = r.top - h * .55; }
-  left = Math.max(8, Math.min(left, innerWidth - w - 8));
-  top = Math.max(8, top);
+  else { left = r.right - 8; top = r.top - h * .2; }
+  left = Math.max(bleed + sidePad, Math.min(left, innerWidth - w - bleed - sidePad));
+  top = Math.max(minTop, Math.min(top, innerHeight - h - bleed));
   b.style.left = left + 'px'; b.style.top = top + 'px';
   b.classList.remove('show'); void b.offsetWidth; b.classList.add('show');
 }
@@ -176,7 +184,7 @@ function hitBell(who){
   bell.classList.add('hit'); if(app.dataset.screen==='game') bell.classList.add(who?'hit-l':'hit-r');
   ding(); window.BellFace && BellFace.press();   // 종 표정: 꾹 눈 감고 납작 (src/bell-face.js)
   if(app.dataset.screen!=='game' || over || !cur) return;
-  if(cur.done){ if(who===ME && performance.now()<lockUntil+900) say('Coco가 먼저 쳤어요!'); return; }
+  if(cur.done){ if(who===ME && performance.now()<lockUntil+900) say('코코가 먼저!'); return; }
   if(performance.now()<lockUntil) return;
   const p=P[who];
   if(cur.p){
@@ -184,15 +192,15 @@ function hitBell(who){
     repeatWord(cur);
     cur.el.style.setProperty('--hitc', who? 'oklch(0.85 0.1 14)':'oklch(0.85 0.07 260)');
     cur.el.classList.add('right'); window.BellFace && BellFace.react('happy');
-    if(who===CPU){ mood('happy',1400); cocoSay(`${cur.w}! 여러 개야`); }
+    if(who===CPU){ mood('happy',1400); cocoSay('여러 개!'); }
     else { mood('surprised',1200); cocoSay('와, 빠르다!'); stats.hits++; stats.rt.push(performance.now()-cur.t0); }
     fly(p.slots[p.score]); p.score++;
     if(p.score===3) end(who);
   }else{
     if(cur.wrong.has(who)) return; cur.wrong.add(who); buzz(); window.BellFace && BellFace.react('oops');
     repeatWord(cur);
-    if(who===ME){ say('한 개일 땐 종을 치지 않아요'); stats.miss++; }
-    else { mood('oops',1500); cocoSay(`앗, ${cur.w}은 한 개였네!`); }
+    if(who===ME){ say('한 개면 치지 마!'); stats.miss++; }
+    else { mood('oops',1500); cocoSay('한 개야!'); }
     cur.el.classList.remove('wrong'); void cur.el.offsetWidth; cur.el.classList.add('wrong');
     p.minus.classList.remove('show'); void p.minus.offsetWidth; p.minus.classList.add('show');
     if(p.score>0){ p.score--; const s=p.slots[p.score]; s.className='slot has lose'; setTimeout(()=>s.className='slot',450); }
@@ -219,15 +227,17 @@ function fly(target){
 }
 function end(w){
   over=true; clearTimers(); holdClock(); setTurn(turn);
-  // Coco는 이겨도 져도 다음 판을 권한다 (놀리지 않는 상대)
-  setTimeout(()=>{ if(w===CPU){ mood('cheer'); cocoSay('내가 이겼다! 한 판 더 할래?'); }
-                   else { mood('sad'); cocoSay('으앗, 네가 이겼어!'); setTimeout(()=>{ if(over) mood('happy'); }, 1300); } }, 300);
+  // Coco가 이기면 "내가 이겼다!"가 사라진 뒤에 "한 판 더?"가 나온다
+  const cocoWon = w===CPU;
+  setTimeout(()=>{ if(cocoWon){ mood('cheer'); cocoSay('내가 이겼다!');
+                     setTimeout(()=>{ if(over && app.dataset.screen==='game') cocoSay('한 판 더?'); }, 3400); }
+                   else { mood('sad'); cocoSay('네가 이겼어!'); setTimeout(()=>{ if(over) mood('happy'); }, 1300); } }, 300);
   setTimeout(()=>{ if(!over) return;   // 그사이 나가기·다시 하기를 눌렀으면 결과를 띄우지 않음
     const h=$('#vTitle');
     h.textContent = w===ME ? '이겼다!' : '아쉬워요!'; h.style.color = w===ME ? 'var(--p1)' : 'var(--p2)';
     $('#vSub').textContent = w===ME ? 'Coco보다 먼저 S 3개를 모았어요' : 'Coco가 먼저 모았어요. 다시 도전해요!';
     renderResult({ win: w===ME, me: P[ME].score, coco: P[CPU].score, stats, level, levelName: L().name });
-    $('#verdict').classList.add('show'); $('#again').focus(); }, 2200);
+    $('#verdict').classList.add('show'); $('#again').focus(); }, cocoWon ? 6000 : 2200);
 }
 
 // 3D 판 위 히트테스트 대신 화면 좌표 터치 영역

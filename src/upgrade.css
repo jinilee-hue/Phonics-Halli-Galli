@@ -42,15 +42,14 @@
 .coco-spot{ right:auto; left:7%; }
 [data-screen="title"] .coco-spot{ translate: -24vw 0; }
 @keyframes lean{ 50%{ translate:3vh .6vh; rotate:14deg; } }          /* Coco가 종 쪽(오른쪽)으로 몸을 기울임 */
-.bubble{ translate:none; padding:0; background:none; border-radius:0; box-shadow:none; filter:none; }
+.bubble{ z-index:7; isolation:isolate; translate:none; padding:0; background:none; border-radius:0; box-shadow:none; filter:none; overflow:visible; }
 .bubble::after{ display:none; }
-.bubble span{ position:relative; z-index:1; display:block; padding:2.8vh 3.4vh 3vh;
-  -webkit-mask: url("../assets/cloud.svg?v=2") center / 100% 100% no-repeat;
-  mask: url("../assets/cloud.svg?v=2") center / 100% 100% no-repeat;
-  background:
-    radial-gradient(55% 48% at 34% 28%, #fff 0%, rgb(255 255 255 / 0) 62%),
-    linear-gradient(180deg, #fff 0%, #f7fafd 42%, #d5e1ee 78%, #c3d3e4 100%);
-  filter: drop-shadow(0 .35vh 0 #c5d4e4) drop-shadow(0 1.15vh .55vh rgb(70 96 130 / .28)); }
+.bubble .cloud{ position:absolute; z-index:0; left:50%; top:50%; width:calc(100% + 2.4vh); height:auto;
+  transform:translate(-50%, -50%); pointer-events:none; filter:none; }
+#bubbleL .cloud{ transform:translate(-50%, -54%); }
+#bubbleR .cloud{ transform:translate(-50%, -49%); }
+.bubble span{ position:relative; z-index:1; display:block; padding:.45vh .7vh; line-height:1; background:none; filter:none;
+  -webkit-mask:none; mask:none; }
 .bubble.show{ animation: bub 3.4s ease-out both; }
 .bell .side.l{ background: radial-gradient(circle at 100% 60%, transparent 45%, var(--p2) 100%); }   /* 왼쪽 빛 = Coco */
 .bell .side.r{ background: radial-gradient(circle at 0% 60%, transparent 45%, var(--p1) 100%); }     /* 오른쪽 빛 = 나 */
@@ -74,9 +73,10 @@
 .orb-back{ rotate: y 180deg; }
 [data-screen="game"] .orbit{ opacity:0; }
 
-/* ── 다시 듣기: 글자 대신 스피커 아이콘 ── */
-.replay{ width:7vh; height:7vh; padding:0; border-radius:50%; font-size:0; }
-.replay svg{ width:3.8vh; height:3.8vh; fill:none; stroke:currentColor; stroke-width:2.2; stroke-linecap:round; stroke-linejoin:round; }
+/* ── 다시 듣기: assets/listening_btn (노란 원 + 파란 스피커) ── */
+.replay{ width:7.2vh; height:7.2vh; padding:0; border-radius:0; font-size:0; background:none; box-shadow:none; }
+.replay img{ width:100%; height:100%; display:block; object-fit:contain; pointer-events:none; }
+.replay:disabled{ opacity:.4; box-shadow:none; cursor:default; }
 
 /* ── 가운데 종 (assets/bell.png — 얼굴과 빨간 받침까지 그려진 그림, 1499×1375 · 여백 없이 가운데) ──
    새 그림은 테두리까지 꽉 차서, 예전 종과 같은 크기로 보이게 폭을 93%로 둬요. */

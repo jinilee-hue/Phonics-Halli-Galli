@@ -74,6 +74,10 @@ node tools/import-artifact.mjs --replace  # 작업본을 새 원본으로 덮어
 | `src/orbit.js` | 시작 화면: 5세 카드 6장이 종 둘레를 빙글빙글 돌고, 가끔 뒤집혀 카드 뒷면(`my_card` · `coco_card`)이 보여요 |
 | `src/bell-face.js` | 종 표정과 몸짓 (인트로 영상 참고): 깜빡 · 윙크 · 누르면 꾹 눈 감고 납작 + 소리 물결 · 맞으면 활짝 · 틀리면 '앗' |
 | `assets/bell_parts/` · `src/bell-parts.js` | 종 그림에서 떼어 낸 얼굴 조각(눈 · 입 · 볼터치)과 위치. `tools/build_bell_parts.py`가 만들어요 — 종 그림을 바꾸면 다시 돌리기 |
+| `src/clock.js` | 게임 화면 시계: 주황 바늘은 배경음악 박자마다 째깍, 파랑 바늘은 쉬지 않고 돎, 한 바퀴마다 부르르 |
+| `assets/clock_parts/` · `src/clock-parts.js` | 시계 그림(`assets/time_icon.png`)에서 떼어 낸 바늘 · 몸통 · 단추. `tools/build_clock_parts.py`가 만들어요 |
+| `assets/talk_left.png` · `assets/talk_right.png` | Coco · 나의 말풍선 구름 그림 |
+| `assets/listening_btn.png` | 다시 듣기 버튼 그림 |
 | `docs/카드_낱말_목록.xlsx` | 게임 카드 낱말 목록 (단계별 · 나온 쪽 · 뺀 낱말과 이유) |
 | `tools/export_words.py` | 위 엑셀을 `src/words.js`에서 다시 만드는 스크립트 |
 | `실행.command` | 더블클릭 실행 |
