@@ -227,11 +227,10 @@
 .hud-clock:not(.live) .ck-part, .hud-clock.live .ck-still{ visibility:hidden; }
 .hud-clock.ring{ animation: ck-ring .55s ease-in-out; transform-origin: 50% 58%; }   /* 자명종처럼 부르르 */
 @keyframes ck-ring{ 12%{ rotate:-8deg; } 30%{ rotate:7deg; } 48%{ rotate:-5deg; } 66%{ rotate:3deg; } 84%{ rotate:-1deg; } 100%{ rotate:0deg; } }
-/* 스피커 · 나가기: 유리처럼 — 반투명 흰색 + 뒤 배경 흐림 + 빛 받는 위쪽 테두리 */
+/* 스피커 · 나가기: 유리처럼 — 반투명 흰색 + 뒤 배경 흐림 (흰 테두리 선은 없음 · 사용자 요청) */
 .hud-btn{ display:grid; place-items:center; width:7.4vh; height:7.4vh; border-radius:50%; color: var(--ink);
   background: linear-gradient(160deg, rgb(255 255 255 / .62) 0%, rgb(255 255 255 / .3) 100%);
   -webkit-backdrop-filter: blur(14px) saturate(1.5); backdrop-filter: blur(14px) saturate(1.5);
-  border: 1.5px solid rgb(255 255 255 / .72);
   box-shadow: inset 0 .25vh .5vh rgb(255 255 255 / .55), inset 0 -.4vh .8vh rgb(255 255 255 / .12), 0 .7vh 2vh rgb(40 60 90 / .14);
   transition: translate .1s, box-shadow .1s, background-color .15s; }
 .hud-btn:active{ translate: 0 .5vh; box-shadow: inset 0 .25vh .5vh rgb(255 255 255 / .5), 0 .4vh 1.2vh rgb(40 60 90 / .12); }
