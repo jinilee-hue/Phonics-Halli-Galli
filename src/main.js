@@ -90,7 +90,10 @@ function paintClock(){
   const ms = clockHold != null ? clockHold : (clockFrom ? performance.now() - clockFrom : 0);
   const sec = Math.min(35999, Math.floor(ms / 1000));
   const text = Math.floor(sec / 60) + ':' + String(sec % 60).padStart(2, '0');
-  if (el.textContent !== text) el.textContent = text;
+  if (el.textContent === text) return;
+  // 숫자마다 같은 폭 칸에 넣어서, 시간이 바뀌어도 알약 크기가 그대로 (Fredoka는 1이 좁고 2가 넓은 등 숫자 폭이 제각각)
+  el.innerHTML = [...text].map(c => c === ':' ? '<i class="sep">:</i>' : '<i>' + c + '</i>').join('');
+  el.dataset.n = String(text.length - 1);   // 숫자 개수 — 10분이 넘으면 칸을 조금 작게 해서 같은 폭에 맞춤 (upgrade.css)
 }
 function tickClock(){ paintClock(); if (clockFrom && clockHold == null) clockRAF = requestAnimationFrame(tickClock); }
 function startClock(){ clockHold = null; clockFrom = performance.now(); cancelAnimationFrame(clockRAF); tickClock(); }

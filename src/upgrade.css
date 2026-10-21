@@ -205,6 +205,14 @@
   font: 700 3.4vh/1 "Fredoka", sans-serif; font-variant-numeric: tabular-nums; letter-spacing:.02em; }
 .hud-time img{ width:5vh; height:5vh; object-fit:contain; display:block; pointer-events:none; }
 .hud-time b{ font: inherit; }
+/* 시간 숫자: 칸 폭 고정 — 시간이 흘러도 알약 크기가 그대로. 칸 하나 = 가장 넓은 숫자(2, .566em)보다 조금 넓게
+   10분부터(숫자 4개)는 칸을 작게 해 같은 폭 안에 (main.js의 paintClock이 data-n을 붙여요) */
+.hud-time b{ --dw:.58em; --cw:.24em; display:flex; align-items:center; justify-content:center; flex:none;
+  width: calc(3 * var(--dw) + var(--cw)); letter-spacing:0; }
+.hud-time b i{ font-style:normal; flex:none; width: var(--dw); text-align:center; }
+.hud-time b i.sep{ width: var(--cw); }
+.hud-time b[data-n="4"] i{ font-size:.773em; }   /* 3·58+.24 = 1.98em 안에 숫자 4개 */
+.hud-time b[data-n="5"] i{ font-size:.63em; }    /* 100분 넘게 (거의 없음) */
 /* 진행 시간 시계: 크게 — 알약 왼쪽 밖으로 살짝 튀어나오게. 바늘 두 개가 따로 돌아요 (src/clock.js) */
 .hud-time .hud-clock{ position:relative; flex:none; width:10vh; height:auto; aspect-ratio: 441 / 470; margin: -1.8vh .3vh -1.8vh -2.6vh; }
 .hud-time .hud-clock img{ position:absolute; inset:0; width:100%; height:100%; display:block; object-fit:contain; pointer-events:none; user-select:none; -webkit-user-drag:none; }
