@@ -205,8 +205,12 @@
   text-shadow: 0 .1vh .25vh rgb(255 255 255 / .6); }   /* 흐린 배경 위에서도 글자가 또렷하게 */
 .hud-r{ display:flex; align-items:center; gap:1.4vh; }
 .hud-time{ display:flex; align-items:center; justify-content:center; gap:.7vh; min-width:14vh; height:7.4vh; padding:0 1.8vh 0 1.4vh;
-  border-radius:999px; background: var(--panel); color: var(--ink);
-  box-shadow: 0 .7vh 2vh rgb(0 0 0 / .12);
+  border-radius:999px; color: var(--ink);
+  /* 시간 알약도 스피커 · 나가기와 같은 유리 (흰 테두리 선 없음) — 반투명 흰색 + 뒤 배경 흐림 */
+  background: linear-gradient(160deg, rgb(255 255 255 / .62) 0%, rgb(255 255 255 / .3) 100%);
+  -webkit-backdrop-filter: blur(14px) saturate(1.5); backdrop-filter: blur(14px) saturate(1.5);
+  box-shadow: inset 0 .25vh .5vh rgb(255 255 255 / .55), inset 0 -.4vh .8vh rgb(255 255 255 / .12), 0 .7vh 2vh rgb(40 60 90 / .14);
+  text-shadow: 0 .1vh .25vh rgb(255 255 255 / .6);   /* 흐린 배경 위에서도 숫자가 또렷하게 */
   font: 700 3.4vh/1 "Fredoka", sans-serif; font-variant-numeric: tabular-nums; letter-spacing:.02em; }
 .hud-time img{ width:5vh; height:5vh; object-fit:contain; display:block; pointer-events:none; }
 .hud-time b{ font: inherit; }
@@ -239,7 +243,7 @@
 .hud-btn svg{ filter: drop-shadow(0 .1vh .15vh rgb(255 255 255 / .6)); }   /* 흐린 배경 위에서도 아이콘이 또렷하게 */
 /* 흐림을 못 쓰는 브라우저는 예전처럼 거의 불투명한 흰색 */
 @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))){
-  .hud-btn, .vol-panel, .hud .level-pill{ background: var(--panel); } }
+  .hud-btn, .vol-panel, .hud .level-pill, .hud-time{ background: var(--panel); } }
 .c-shadow{ background: radial-gradient(ellipse, rgb(0 0 0 / .28), transparent 72%); }
 .hud-btn svg{ width:3.8vh; height:3.8vh; fill:none; stroke:currentColor; stroke-width:2.2; stroke-linecap:round; stroke-linejoin:round; }
 .hud-btn .ic-off{ display:none; }
