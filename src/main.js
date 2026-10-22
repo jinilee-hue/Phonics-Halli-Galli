@@ -157,10 +157,12 @@ function speak(w){
     if(!buf || my !== speakSeq || muted) return;
     const c = ctx(); if(c.state === 'suspended') c.resume();
     const src = c.createBufferSource(), g = c.createGain();
-    src.buffer = buf; g.gain.value = gainOf(volume);
+    // 소리 파일은 받은 원본 그대로(다시 압축 안 함) — 시작 자리(말 0.12초 전) · 크기는 여기서 맞춤 (VOICE_TRIM · tools/build_voice.py)
+    const t = (window.VOICE_TRIM && VOICE_TRIM[String(w).toLowerCase()]) || [0, 1];
+    src.buffer = buf; g.gain.value = gainOf(volume) * t[1];
     src.connect(g); g.connect(c.destination);
     src.onended = ()=>{ if(voiceSrc === src){ voiceSrc = null; talking(false); } };
-    voiceSrc = src; talking(true); src.start();
+    voiceSrc = src; talking(true); src.start(0, Math.min(t[0], buf.duration));
   });
 }
 
@@ -182,7 +184,7 @@ function flip(i){
   const art = img ? `<img class="card-img" src="${img}" alt="${c.w}" draggable="false">` : L().pic ? `<div class="art" style="--tint:${TINTS[Math.random()*4|0]}"><small>그림 자리</small><strong>${c.a}</strong></div>` : '';
   el.innerHTML=`<div class="f front">${art}<div class="word">${c.w}</div></div><div class="f back"><b></b></div>`;
   spot.appendChild(el); cur.el=el; $('#replay').disabled=false;
-  setTimeout(()=>speak(c.w), 350);
+  setTimeout(()=>speak(c.w), 260);   // 소리 앞 빈소리가 0.03→0.12초로 늘어서 0.09초 일찍 시작 (들리는 때는 전과 같음)
   mood('think');
   cpuReact(cur);
   setTurn(1-turn);
@@ -224,7 +226,8 @@ function hitBell(who){
   }
 }
 // 종을 친 뒤 종소리가 잦아들 즈음 같은 단어를 한 번 더 읽어준다 (맞았든 틀렸든)
-function repeatWord(card){ setTimeout(()=>{ if(cur===card) speak(card.w); }, 650); }
+// (소리 앞 빈소리가 0.12초라 0.09초 일찍 시작 — 들리는 때는 전과 같음)
+function repeatWord(card){ setTimeout(()=>{ if(cur===card) speak(card.w); }, 560); }
 function fly(target){
   const art = cur.el && cur.el.querySelector('.card-img');
   if(art){

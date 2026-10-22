@@ -13,7 +13,12 @@
 .deck i img{ display:block; width:100%; height:100%; object-fit:cover; pointer-events:none; }
 .deck i:nth-child(3) img{ filter: drop-shadow(0 .35vh .6vh rgb(0 0 0 / .16)); }
 .tray.p2:not(.turn) .deck{ filter: brightness(.96); }
-.slots{ top: calc(30% + 20px); width: 6.4%; gap: .5vh; }
+/* 획득 카드 칸(S 칸 3개): 화면 크기에 따라 같이 커지고 작아지되, 옆 핑크 · 보라 칸 높이의 86%로 늘 그 안에 (위아래 여백 같게).
+   핑크 · 보라 칸 높이 = 탁자 폭 × 20.485% + 8.913vh  (위아래 안쪽 여백 4vh + 이름 4.2vh + 사이 1.4vh + 카드 더미 칸 여백 3vh
+                                                     + 카드 더미 = 70% × (칸 폭 20% − 3.6vh) × 1431/978)
+   S 칸 3개 + 사이 2개 = 칸 높이 × .86 → 폭 = (칸 높이 × .86 − 1vh) ÷ (3 × 1524/1208),  위 여백 = 칸 높이 × .07
+   (width · margin의 %는 둘 다 탁자 폭 기준. 위 .tray · .deck · .well 크기를 바꾸면 이 숫자도 같이 바꿔야 해요) */
+.slots{ top: 30%; margin-top: calc(1.4339% + .6239vh); width: calc(4.6546% + 1.761vh); gap: .5vh; }
 .slot{ aspect-ratio: 1208 / 1524; overflow: hidden; border-radius: .7vh; }
 /* 카드 자리 안내: 한글 문장 대신 영어 두 줄 CARD / ZONE (Coco · Me 이름표와 같은 글꼴) */
 .spot .hint b{ display:block; text-align:center; font: 600 5vh/1.04 "Fredoka", sans-serif; letter-spacing:.1em; }
