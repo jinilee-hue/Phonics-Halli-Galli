@@ -430,3 +430,27 @@
 .rk.gap{ display:block; height:auto; padding:0; background:none; box-shadow:none; text-align:center;
   font: 700 2.4vh/1 "Fredoka",sans-serif; color: var(--soft); letter-spacing:.4em; }
 .r-rule{ margin-top:auto; padding-top:.6vh; text-align:center; font-size:1.9vh; color: var(--soft); }
+
+/* ── 화면 비율 대응: 가로로 아주 넓은 화면(21:9 · 32:9 모니터, 짧고 넓은 창) ──
+   요소 크기는 대부분 화면 높이(vh) 기준인데 탁자 폭만 화면 폭(86vw)을 따라가서, 넓은 화면에선 판 · 트레이가 끝없이 커지고
+   위 버튼들은 화면 양 끝으로 멀어졌어요. → 콘텐츠가 놓이는 '무대'를 16:9 폭까지만 쓰고, 그보다 넓으면 양옆은 배경만 보이게.
+   16:9 이하(아이패드 4:3 · 노트북 16:10 · 모니터 16:9)는 지금과 똑같아요. */
+:root{
+  --stage-w: min(100vw, 177.78vh);                        /* 콘텐츠 무대 폭: 16:9까지 */
+  --stage-side: calc((100vw - var(--stage-w)) / 2);       /* 무대 밖 양옆 (16:9 이하면 0) */
+}
+.table{ width: calc(var(--stage-w) * .86); }             /* 원래 86vw */
+.hud{ left: calc(var(--stage-side) + var(--stage-w) * .024); right: calc(var(--stage-side) + var(--stage-w) * .024); }
+/* 시작 화면에서 트레이 · S 칸 · Coco를 옆으로 빼 둘 때도 무대 밖까지 확실히 */
+[data-screen="title"] .tray.p1, [data-screen="title"] .slots.p1{ translate: calc(30vw + var(--stage-side)) 0; }
+[data-screen="title"] .tray.p2, [data-screen="title"] .slots.p2{ translate: calc(-30vw - var(--stage-side)) 0; }
+[data-screen="title"] .coco-spot{ translate: calc(-24vw - var(--stage-side)) 0; }
+
+/* 인트로 영상은 원래대로 화면을 가득 채워요 (양옆을 비우지 않음).
+   SKIP: 영상과 같은 비율로 커지고 작아져요. 영상은 화면을 가득 채우려고 '높이'와 '폭' 중 큰 쪽에 맞춰 늘어나서
+   (16:9보다 넓은 창이면 폭 기준 0.5625vw), SKIP도 같은 단위(--vu)로 — 창을 옆으로 넓혀도 영상과 함께 커짐.
+   아주 넓은 모니터에서 너무 커지지 않게 1.5vh까지, 아주 작은 창에서도 누르기 쉽게 최소 크기 */
+.intro{ --vu: min(max(1vh, .5625vw), 1.5vh); }
+.intro-skip{ right:3vw; bottom: calc(4.5 * var(--vu));
+  height: max(calc(6.4 * var(--vu)), 40px); padding: 0 max(calc(3 * var(--vu)), 18px);
+  font-size: max(calc(2.6 * var(--vu)), 15px); border-width: calc(.3 * var(--vu)); }
