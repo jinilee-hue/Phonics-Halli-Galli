@@ -78,6 +78,7 @@ node tools/import-artifact.mjs --replace  # 작업본을 새 원본으로 덮어
 | `assets/clock_parts/` · `src/clock-parts.js` | 시계 그림(`assets/time_icon.png`)에서 떼어 낸 바늘 · 몸통 · 단추. `tools/build_clock_parts.py`가 만들어요 |
 | `assets/talk_left.png` · `assets/talk_right.png` | Coco · 나의 말풍선 구름 그림 |
 | `assets/listening_btn.png` | 다시 듣기 버튼 그림 |
+| `assets/voice/*.mp3` · `src/voice-data.js` | 카드 낱말 읽어 주기 소리 238개 — Microsoft 신경망 음성 'Ana'(미국 영어 여자아이). `tools/build_voice.py`가 만들어요 (words.js가 바뀌면 다시 돌리기) |
 | `docs/카드_낱말_목록.xlsx` | 게임 카드 낱말 목록 (단계별 · 나온 쪽 · 뺀 낱말과 이유) |
 | `tools/export_words.py` | 위 엑셀을 `src/words.js`에서 다시 만드는 스크립트 |
 | `실행.command` | 더블클릭 실행 |
@@ -89,3 +90,4 @@ node tools/import-artifact.mjs --replace  # 작업본을 새 원본으로 덮어
 - 결과 순위: 모은 S가 많은 순, 같으면 빠른 순. '나'만 실제 기록이고 반 친구 11명은 예시예요.
 - 단계 고르기: 지금은 숨김 → 늘 1단계(5세). 다시 보이게 하려면 `src/upgrade.css`의 `.level{ display:none; }` 한 줄을 지워요.
 - 소리: 오른쪽 위 스피커를 누르면 세로 소리 막대가 내려와요 (맨 아래 = 끔). 시작 화면에도 있고, 고른 크기는 기기에 기억돼요.
+- 낱말 읽어 주기: 기기 내장 음성은 기기마다 목소리가 달라서 쓰지 않고, 미리 만든 아이 목소리 파일(Microsoft 'Ana')을 재생해요. 어느 기기에서나 같은 목소리예요. 지금 파일은 무료 도구 edge-tts로 만든 시제품용이라, 정식 출시 때는 같은 목소리를 Azure Speech(정식 유료 서비스)로 다시 만들거나 성우 녹음으로 바꿔요.

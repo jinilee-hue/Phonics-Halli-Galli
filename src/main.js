@@ -122,29 +122,46 @@ function tone(fs,d,type='sine',g0=.22){ if(muted) return; try{ const c=ctx(), g=
   g.gain.exponentialRampToValueAtTime(.001,c.currentTime+d); g.connect(c.destination);
   fs.forEach(f=>{ const o=c.createOscillator(); o.type=type; o.frequency.value=f; o.connect(g); o.start(); o.stop(c.currentTime+d); }); }catch(e){} }
 const ding=()=>tone([1760,2640,3520],1.1), buzz=()=>tone([170,182],.35,'triangle',.2);
-// ── 단어 읽어주기 ──
-// iOS/iPadOS는 첫 음성을 반드시 사용자 터치 안에서 시작해야 이후 자동 재생이 된다 → START에서 잠금 해제
-const TTS = 'speechSynthesis' in window;
-let voice=null, ttsReady=false;
-function loadVoices(){ if(!TTS) return; const vs=speechSynthesis.getVoices();
-  voice = vs.find(v=>/en[-_]US/i.test(v.lang) && /Samantha|Ava|Allison|Google US English|Aria|Jenny|Nicky/i.test(v.name))
-       || vs.find(v=>/en[-_]US/i.test(v.lang)) || vs.find(v=>/^en/i.test(v.lang)) || null; }
-if(TTS){ loadVoices(); speechSynthesis.addEventListener?.('voiceschanged', loadVoices); }
-function unlockSpeech(){ if(!TTS || ttsReady) return; ttsReady=true;
-  try{ const u=new SpeechSynthesisUtterance(' '); u.volume=0; speechSynthesis.speak(u); }catch(e){} }
+// ── 단어 읽어주기: 미리 만든 아이 목소리 소리 파일 (Microsoft 신경망 음성 'Ana' · 여자아이) ──
+// 기기 내장 음성(speechSynthesis)은 기기마다 목소리가 달라서 쓰지 않아요 — 어느 기기에서나 같은 목소리.
+// 소리: src/voice-data.js (window.VOICE_CLIPS = {낱말: mp3 base64}) — tools/build_voice.py가 만듦, 원본 assets/voice/*.mp3
+// iOS/iPadOS는 첫 소리를 사용자 터치 안에서 시작해야 해서, START · 카드 누를 때 소리 장치를 깨워요(unlockSpeech).
+const clipBuf = new Map(), clipWait = new Map();
+let voiceSrc = null, speakSeq = 0;
+function clipFor(w){
+  const key = String(w).toLowerCase();
+  if(clipBuf.has(key)) return Promise.resolve(clipBuf.get(key));
+  if(clipWait.has(key)) return clipWait.get(key);
+  const b64 = window.VOICE_CLIPS && window.VOICE_CLIPS[key];
+  if(!b64){ console.warn('[읽어주기] 소리 파일 없음:', w); return Promise.resolve(null); }
+  const bin = atob(b64), bytes = new Uint8Array(bin.length);
+  for(let i=0; i<bin.length; i++) bytes[i] = bin.charCodeAt(i);
+  const p = new Promise(res=>{   // 옛 Safari는 promise를 돌려주지 않아 콜백도 함께
+      const q = ctx().decodeAudioData(bytes.buffer, res, ()=>res(null)); if(q && q.then) q.then(res, ()=>res(null)); })
+    .then(buf=>{ clipWait.delete(key); if(buf) clipBuf.set(key, buf); return buf; });
+  clipWait.set(key, p);
+  return p;
+}
+// 지금 단계 낱말 소리를 미리 풀어 둠 (카드를 뒤집자마자 바로 들리게)
+function levelWords(){ const l = WORDS['level'+level]; if(!l) return [];
+  if(l.words) return l.words.flatMap(w=>[w.base, w.plural]);
+  return [...l.es, ...l.regular].flatMap(w=>[w.base, w.plural]).concat(l.traps.flatMap(t=>t.plural ? [t.w, t.plural] : [t.w])); }
+function unlockSpeech(){ try{ const c = ctx(); if(c.state === 'suspended') c.resume(); levelWords().forEach(clipFor); }catch(e){} }
 function talking(on){ if(cur && cur.el) cur.el.classList.toggle('talking', on); window.BGM && BGM.duck(on); }   // 낱말을 읽는 동안 배경음악을 줄임
+function stopVoice(){ speakSeq++; if(voiceSrc){ const s = voiceSrc; voiceSrc = null; s.onended = null; try{ s.stop(); }catch(e){} talking(false); } }
 function speak(w){
   if(muted) return;
-  if(!TTS){ say('이 기기에서는 읽어주기가 지원되지 않아요'); return; }
-  if(speechSynthesis.speaking || speechSynthesis.pending) speechSynthesis.cancel();
-  setTimeout(()=>{   // cancel 직후 바로 speak하면 Safari에서 소리가 씹히는 문제 회피
-    const u=new SpeechSynthesisUtterance(w);
-    if(!voice) loadVoices();
-    if(voice) u.voice=voice; u.lang = voice ? voice.lang : 'en-US';
-    u.rate=.78; u.pitch=1.08; u.volume=gainOf(volume);
-    u.onstart=()=>talking(true); u.onend=u.onerror=()=>talking(false);
-    speechSynthesis.speak(u); speechSynthesis.resume();   // Chrome이 오래 쉬면 일시정지되는 문제 회피
-  }, 60);
+  stopVoice();
+  const my = speakSeq;
+  clipFor(w).then(buf=>{
+    if(!buf || my !== speakSeq || muted) return;
+    const c = ctx(); if(c.state === 'suspended') c.resume();
+    const src = c.createBufferSource(), g = c.createGain();
+    src.buffer = buf; g.gain.value = gainOf(volume);
+    src.connect(g); g.connect(c.destination);
+    src.onended = ()=>{ if(voiceSrc === src){ voiceSrc = null; talking(false); } };
+    voiceSrc = src; talking(true); src.start();
+  });
 }
 
 function flip(i){
@@ -274,7 +291,7 @@ function setVolume(v, save = true){
   volume = Math.min(1, Math.max(0, v)); if(volume < .03) volume = 0;   // 맨 아래 = 소리 끔
   muted = volume === 0;
   window.BGM && BGM.setVolume(gainOf(volume));
-  if(muted && TTS) speechSynthesis.cancel();
+  if(muted) stopVoice();
   paintVolume();
   if(save) try{ localStorage.setItem('hg-volume', String(volume)); }catch(e){}
 }
@@ -297,7 +314,7 @@ volPanel.addEventListener('keydown', e=>{ const k = {ArrowUp:.1, ArrowRight:.1, 
 document.addEventListener('pointerdown', e=>{ if(vol.classList.contains('open') && !e.target.closest('#vol')) openVolume(false); }, true);
 // 나가기: 게임 화면 → 시작 화면 / 시작 화면 → 들어온 곳으로 (없으면 인트로부터 다시)
 $('#btnExit').addEventListener('click', ()=>{
-  if(TTS) speechSynthesis.cancel();
+  stopVoice();
   if(app.dataset.screen === 'title'){
     if(history.length > 1){ history.back(); setTimeout(()=>location.reload(), 700); } else location.reload();
     return;
