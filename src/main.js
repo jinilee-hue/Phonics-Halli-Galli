@@ -32,7 +32,7 @@ const L3_COUNT = new Set([...WORDS.level3.es.map(w => w.base), ...WORDS.level3.t
 // 단계별 단어 덱
 const LEVELS = {
   1:{ name:'1단계 · 5세', book:'K', desc:`-s 복수형 · 그림 보기 · Coco 느림 · 교재 낱말 ${WORDS.level1.words.length}개`, pic:true,
-      cpu:{ react:[1800,2400], miss:.25, slip:.08, flip:2600 },
+      cpu:{ react:[1800,2400], miss:.25, slip:.08, flip:3200 },   // flip: 내가 카드를 뒤집은 뒤 Coco가 자기 카드를 뒤집기까지 (반응 최대 3.02초보다 길게)
       get words(){ return level1Cards(); } },
   2:{ name:'2단계 · 6세', book:'A', desc:`같은 단어 짝 (cat / cats) · 그림 보기 · Coco 보통 · 교재 낱말 ${WORDS.level2.words.length}개`, pic:true,
       cpu:{ react:[1150,1550], miss:.12, slip:.06, flip:2200 },
@@ -54,6 +54,10 @@ const stats = { hits:0, rt:[], miss:0 };
 const L=()=>LEVELS[level];
 const later=(fn,ms)=>timers.push(setTimeout(fn,ms));
 function clearTimers(){ timers.forEach(clearTimeout); timers=[]; }
+// Coco 차례 카드 뒤집기 예약. 누가 종을 맞게 친 뒤에는 카드가 칸으로 날아가고 낱말을 다시 읽을 동안 기다렸다가 뒤집음
+const AFTER_HIT = 1500;
+let cpuFlipAt = 0;
+function cpuFlipIn(ms){ cpuFlipAt = performance.now() + ms; later(()=>flip(CPU), ms); }
 const rand=([a,b])=>a+Math.random()*(b-a);
 function shuffle(a){ a=[...a]; for(let i=a.length-1;i>0;i--){ const j=Math.random()*(i+1)|0; [a[i],a[j]]=[a[j],a[i]]; } return a; }
 const newDeck=()=>shuffle(L().words.map(([w,p,a])=>({w,p:!!p,a})));
@@ -188,7 +192,7 @@ function flip(i){
   mood('think');
   cpuReact(cur);
   setTurn(1-turn);
-  if(turn===CPU) later(()=>flip(CPU), L().cpu.flip);
+  if(turn===CPU) cpuFlipIn(L().cpu.flip);
 }
 // Coco는 카드가 열린 뒤 단계별 반응 시간만큼 생각하다 판단한다
 function cpuReact(card){
@@ -215,6 +219,7 @@ function hitBell(who){
     else { mood('surprised',1200); cocoSay('와, 빠르다!'); stats.hits++; stats.rt.push(performance.now()-cur.t0); }
     fly(p.slots[p.score]); p.score++;
     if(p.score===3) end(who);
+    else if(turn===CPU && cpuFlipAt - performance.now() < AFTER_HIT){ clearTimers(); cpuFlipIn(AFTER_HIT); }
   }else{
     if(cur.wrong.has(who)) return; cur.wrong.add(who); buzz(); window.BellFace && BellFace.react('oops');
     repeatWord(cur);
