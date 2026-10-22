@@ -49,8 +49,8 @@ window.WORDS = {
     "plural": "bats",
     "n": 1,
     "src": "FPR K p.177",
-    "ko": "박쥐",
-    "unit": "마리"
+    "ko": "야구방망이",
+    "unit": "개"
    },
    {
     "base": "bug",
@@ -316,8 +316,8 @@ window.WORDS = {
     "plural": "bats",
     "n": 2,
     "src": "FPR A p.73, p.254",
-    "ko": "박쥐",
-    "unit": "마리"
+    "ko": "야구방망이",
+    "unit": "개"
    },
    {
     "base": "bean",

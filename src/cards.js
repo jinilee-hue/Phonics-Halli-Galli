@@ -1,8 +1,8 @@
 // tools/build_cards.py 가 만든 파일입니다. 카드 그림을 바꾸면 스크립트를 다시 돌리세요.
 // 그림이 있는 낱말 → 게임용 그림 경로 (원본은 assets/card)
 window.CARD_ART = {
- "bat": "./assets/card_web/card_bat.webp",
- "bats": "./assets/card_web/card_bats.webp",
+ "bat": "./assets/card_web/card_bat.webp?v=2",
+ "bats": "./assets/card_web/card_bats.webp?v=2",
  "bug": "./assets/card_web/card_bug.webp",
  "bugs": "./assets/card_web/card_bugs.webp",
  "cat": "./assets/card_web/card_cat.webp",
