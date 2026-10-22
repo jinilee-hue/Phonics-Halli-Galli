@@ -2,6 +2,7 @@
 
 결과 (가로세로 절반 크기 — 화면에선 10vh 남짓이라 충분)
   assets/clock_parts/body.png         바늘 · 바늘 그림자 · 가운데 단추를 지운 시계 (테두리 · 판 · 꼭지 그대로)
+                                      시계 밖에 구워진 회백색 그림자도 지움 — 그림자는 upgrade.css의 drop-shadow로
   assets/clock_parts/hand_blue.png    파란 화살 바늘 — 주황 바늘 · 단추에 가렸던 뿌리 쪽은 깨끗한 단면을 이어 그림
   assets/clock_parts/hand_orange.png  주황 바늘 — 단추에 가렸던 뿌리 쪽은 깨끗한 단면을 이어 그림
   assets/clock_parts/cap.png          가운데 단추 (바늘 위에 얹힘)
@@ -269,6 +270,23 @@ sheet.save(DBG / 'ck_sheet.png')
 Image.fromarray(((compose(120, 210) * a[..., None] + bgc * (1 - a[..., None])) * 255 + .5).astype(np.uint8)).crop((100, 150, 720, 760)).save(DBG / 'ck_zoom.png')
 Image.fromarray(((body * a[..., None] + bgc * (1 - a[..., None])) * 255 + .5).astype(np.uint8)).crop((100, 150, 720, 760)).save(DBG / 'ck_body.png')
 
+# ── 6.5) 바깥의 뿌연 회백색 그림자 걷어 내기
+#   원본 그림은 흰 바탕에 맞춘 그림자가 '반투명 회백색'으로 구워져 있어서, 분홍 · 하늘색 배경 위에서는
+#   시계 아래 · 오른쪽에 흰 박스처럼 떠 보임 → 시계 몸 밖은 투명하게, 그림자는 CSS drop-shadow로 새로 그림
+#   시계 몸 = 빨간 테두리 + 노란 꼭지(채도 높음)를 메운 모양. 회백색 그림자는 채도가 낮아 여기서 빠짐
+#   (0단계에서 그림자 일부가 '구멍'으로 잡혀 불투명해졌으므로, 알파가 아니라 색으로 몸을 정함)
+rimk = (im[..., 3] > .5) & (sat > .3) & (r > .55)
+rimk = ndi.binary_closing(rimk, iterations=3)
+lab, n = ndi.label(rimk)
+sizes_ = ndi.sum(rimk, lab, range(1, n + 1))
+keep = [i + 1 for i, s_ in enumerate(sizes_) if s_ > 2000]          # 테두리 고리 + 꼭지 (작은 부스러기는 버림)
+sil = ndi.binary_fill_holes(np.isin(lab, keep))
+d_out = ndi.distance_transform_edt(~sil)
+halo = ~sil & (im[..., 3] > .02)
+a_body = np.where(sil, a, im[..., 3] * np.clip(1.0 - d_out, 0, 1))  # 테두리 밖 1px만 원래 가장자리 알파
+print(f'바깥 회백색 기운 {int(halo.sum())}px 지움 (색 중앙값 {(np.median(rgb[halo], 0) * 255).round().tolist()}, '
+      f'원래 알파 중앙값 {np.median(im[..., 3][halo]):.2f}) · 시계 몸 {int(sil.sum())}px · 테두리 조각 {len(keep)}개')
+
 # ── 7) 저장 (절반 크기 · 미리 곱한 알파로 줄여 테두리가 어두워지지 않게)
 OUT.mkdir(exist_ok=True)
 for f in OUT.glob('*.png'):
@@ -282,7 +300,7 @@ def save(name, col, al):
     return (OUT / f'{name}.png').stat().st_size
 
 
-sizes = {'body': save('body', body, a), 'hand_blue': save('hand_blue', colB, alB),
+sizes = {'body': save('body', body, a_body), 'hand_blue': save('hand_blue', colB, alB),
          'hand_orange': save('hand_orange', colO, alO), 'cap': save('cap', colC, alC)}
 meta = {'W': w2, 'H': h2, 'pivot': [round(pcx * SCALE, 2), round(pcy * SCALE, 2)], 'capR': round(Rc * SCALE, 2),
         'base': {'blue': round(ang_of(dB), 1), 'orange': round(ang_of(dO), 1)}}
